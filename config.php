@@ -1,7 +1,9 @@
 <?php
 
+
+
 return [
     'classes' => [
-        //BookRepository::class => new PDOBookRepository(),
+        //ProductRepository::class => new JSONProductRepository(),
     ],
 ];

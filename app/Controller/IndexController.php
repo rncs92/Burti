@@ -6,6 +6,7 @@ use Burti\Core\TwigView;
 
 class IndexController
 {
+
     public function index(): TwigView
     {
         return new TwigView('Index/index', []);
