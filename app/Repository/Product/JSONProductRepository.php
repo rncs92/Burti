@@ -13,15 +13,29 @@ class JSONProductRepository implements ProductRepository
         $jsonString = file_get_contents('../public/sample.json');
         $data = json_decode($jsonString);
         $itemsRaw = $data->items;
+        $varietiesRaw = $data->varieties;
 
-        $items = [];
-
-
-        foreach($itemsRaw as $item) {
-            var_dump($item);die;
-            $items[] = $this->buildItemModel($item);
+        $varieties = [];
+        foreach ($varietiesRaw as $varietyData) {
+            foreach ($varietyData->options as $optionData) {
+                $this->buildOptionModel($optionData);
+            }
+            $varieties[] = $this->buildVarietyModel($varietyData);
         }
 
+        $items = [];
+        foreach ($itemsRaw as $itemData) {
+            $itemVarieties = [];
+            foreach ($itemData->varieties as $varietyCode) {
+                foreach ($varieties as $variety) {
+                    if ($variety->getCode() === $varietyCode) {
+                        $itemVarieties[] = $variety;
+                        break;
+                    }
+                }
+            }
+            $items[] = $this->buildItemModel($itemData, $itemVarieties);
+        }
         return $items;
     }
 
@@ -36,7 +50,7 @@ class JSONProductRepository implements ProductRepository
     private function buildVarietyModel($variety): Variety
     {
         $options = [];
-        foreach($variety->options as $option) {
+        foreach ($variety->options as $option) {
             $options[] = $this->buildOptionModel($option);
         }
         return new Variety(
@@ -46,17 +60,12 @@ class JSONProductRepository implements ProductRepository
         );
     }
 
-    private function buildItemModel($item): Item
+    private function buildItemModel($item, $itemVarieties): Item
     {
-        $varieties = [];
-        foreach($item->varieties as $variety) {
-            $varieties[] = $this->buildVarietyModel($variety);
-        }
-
         return new Item(
             $item->code,
             $item->description,
-            $varieties
+            $itemVarieties
         );
     }
 }

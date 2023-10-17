@@ -17,9 +17,11 @@ class IndexController
 
     public function index(): TwigView
     {
-        $product = $this->productServices->handle();
-        var_dump($product);die;
+        $items = $this->productServices->handle();
 
-        return new TwigView('Index/index', []);
+
+        return new TwigView('Index/index', [
+            'items' => $items
+        ]);
     }
 }
