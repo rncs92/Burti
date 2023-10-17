@@ -6,12 +6,12 @@ class Item
 {
     private string $code;
     private string $description;
-    private Variety $varieties;
+    private array $varieties;
 
     public function __construct(
         string  $code,
         string  $description,
-        Variety $varieties
+        array $varieties
     )
     {
         $this->code = $code;
@@ -29,7 +29,7 @@ class Item
         return $this->description;
     }
 
-    public function getVarieties(): Variety
+    public function getVarieties(): array
     {
         return $this->varieties;
     }
