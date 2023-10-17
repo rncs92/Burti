@@ -21,5 +21,19 @@
         </div>
     </nav>
 </section>
+<div>
+    {% for item in items %}
+        {{ item.code }}
+        {{ item.description }}
+        {% for variety in item.varieties %}
+            {{ variety.code }}
+            {{ variety.description }}
+            {% for option in variety.options %}
+                {{ option.code }}
+                {{ option.description }}
+                {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</div>
 </body>
 </html>
