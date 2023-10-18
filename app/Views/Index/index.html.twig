@@ -29,18 +29,7 @@
                 <option value="{{ item.code }}">{{ item.description }}</option>
             {% endfor %}
         </select>
-        <label for="varieties" class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Select a
-            variety</label>
-        <select id="varieties"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            <option value="" selected disabled>Choose a variety</option>
-        </select>
-        <label for="options" class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Select an
-            option</label>
-        <select id="options"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            <option value="" selected disabled>Choose an option</option>
-        </select>
+        <div id="varieties-dropdowns"></div>
     </div>
 </div>
 
@@ -48,60 +37,47 @@
     document.addEventListener("DOMContentLoaded", function () {
         // Get references to the select elements
         const productSelect = document.getElementById("items");
-        const varietySelect = document.getElementById("varieties");
-        const optionSelect = document.getElementById("options");
-
-        // Define the product data
-        const products = {{ jsonItems|raw }};
+        const varietiesDropdowns = document.getElementById("varieties-dropdowns");
 
         // Listen for changes in the product select
         productSelect.addEventListener("change", () => {
-            // Clear the other selects
-            varietySelect.innerHTML = '<option value="" selected disabled>Choose a variety</option>';
-            optionSelect.innerHTML = '<option value="" selected disabled>Choose an option</option>';
+            // Clear the existing variety dropdowns
+            varietiesDropdowns.innerHTML = '';
 
             // Get the selected product code
-            const selectedProductCode = productSelect.value;
+            const selectedProductCode = String(productSelect.value);
+            const selectedProduct = {{ jsonItems | raw }}.find(product => product.code === selectedProductCode);
 
-            // Find the selected product data
-            const selectedProduct = products.find(product => product.code === selectedProductCode);
+            if (selectedProduct && selectedProduct.varieties.length > 0) {
+                selectedProduct.varieties.forEach(variety => {
+                    const varietyDropdown = document.createElement("select");
+                    varietyDropdown.classList.add(
+                        "bg-gray-50",
+                        "border",
+                        "border-gray-300",
+                        "text-gray-900",
+                        "text-sm",
+                        "rounded-lg",
+                        "focus:ring-blue-500",
+                        "focus:border-blue-500",
+                        "block",
+                        "w-full",
+                        "p-2.5",
+                        "mt-2"
+                    );
 
-            if (selectedProduct) {
-                // Populate the variety select with the product's varieties
-                for (const variety of selectedProduct.varieties) {
-                    const varietyOption = document.createElement("option");
-                    varietyOption.value = variety.code;
-                    varietyOption.textContent = variety.description;
-                    varietySelect.appendChild(varietyOption);
-                }
-            }
-        });
+                    varietyDropdown.innerHTML = `<option value="" selected disabled>${variety.description}</option>`;
 
-        // Listen for changes in the variety select
-        varietySelect.addEventListener("change", () => {
-            // Clear the option select
-            optionSelect.innerHTML = '<option value="" selected disabled>Choose an option</option>';
-
-            // Get the selected variety
-            const selectedVariety = varietySelect.value;
-
-            // Find the selected product data
-            const selectedProductCode = productSelect.value;
-            const selectedProduct = products.find(product => product.code === selectedProductCode);
-
-            if (selectedProduct) {
-                // Find the selected variety's options
-                const varietyOptions = selectedProduct.varieties.find(variety => variety.code === selectedVariety);
-
-                if (varietyOptions) {
-                    // Populate the option select with the variety's options
-                    for (const option of varietyOptions.options) {
+                    // Create options for the variety
+                    variety.options.forEach(option => {
                         const optionOption = document.createElement("option");
                         optionOption.value = option.code;
                         optionOption.textContent = option.description;
-                        optionSelect.appendChild(optionOption);
-                    }
-                }
+                        varietyDropdown.appendChild(optionOption);
+                    });
+
+                    varietiesDropdowns.appendChild(varietyDropdown);
+                });
             }
         });
     });
