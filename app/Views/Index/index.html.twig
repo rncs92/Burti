@@ -1,12 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Burti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-200 w-screen h-screen">
 <section class="relative mx-auto w-fit">
@@ -21,25 +19,92 @@
         </div>
     </nav>
 </section>
-<div class="flex justify-center">
+<div class="flex justify-center mt-10">
     <div class="w-1/3">
-        <label for="items" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an
-            option</label>
+        <label for="items" class="block mb-1 text-md font-medium text-gray-900 dark:text-white">Select a product</label>
         <select id="items"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <option selected>Choose an item</option>
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <option value="" selected disabled>Choose a product</option>
             {% for item in items %}
-            <option value={{ item.code }}>{{ item.description }}</option>
-        {% for variety in item.varieties %}
-          {{ variety.code }}{{ variety.description }}
-            {% for option in variety.options %}
-                {{ option.code }}
-                {{ option.description }}
+                <option value="{{ item.code }}">{{ item.description }}</option>
             {% endfor %}
-        {% endfor %}
-        {% endfor %}
+        </select>
+        <label for="varieties" class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Select a
+            variety</label>
+        <select id="varieties"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <option value="" selected disabled>Choose a variety</option>
+        </select>
+        <label for="options" class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Select an
+            option</label>
+        <select id="options"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <option value="" selected disabled>Choose an option</option>
         </select>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get references to the select elements
+        const productSelect = document.getElementById("items");
+        const varietySelect = document.getElementById("varieties");
+        const optionSelect = document.getElementById("options");
+
+        // Define the product data
+        const products = {{ jsonItems|raw }};
+
+        // Listen for changes in the product select
+        productSelect.addEventListener("change", () => {
+            // Clear the other selects
+            varietySelect.innerHTML = '<option value="" selected disabled>Choose a variety</option>';
+            optionSelect.innerHTML = '<option value="" selected disabled>Choose an option</option>';
+
+            // Get the selected product code
+            const selectedProductCode = productSelect.value;
+
+            // Find the selected product data
+            const selectedProduct = products.find(product => product.code === selectedProductCode);
+
+            if (selectedProduct) {
+                // Populate the variety select with the product's varieties
+                for (const variety of selectedProduct.varieties) {
+                    const varietyOption = document.createElement("option");
+                    varietyOption.value = variety.code;
+                    varietyOption.textContent = variety.description;
+                    varietySelect.appendChild(varietyOption);
+                }
+            }
+        });
+
+        // Listen for changes in the variety select
+        varietySelect.addEventListener("change", () => {
+            // Clear the option select
+            optionSelect.innerHTML = '<option value="" selected disabled>Choose an option</option>';
+
+            // Get the selected variety
+            const selectedVariety = varietySelect.value;
+
+            // Find the selected product data
+            const selectedProductCode = productSelect.value;
+            const selectedProduct = products.find(product => product.code === selectedProductCode);
+
+            if (selectedProduct) {
+                // Find the selected variety's options
+                const varietyOptions = selectedProduct.varieties.find(variety => variety.code === selectedVariety);
+
+                if (varietyOptions) {
+                    // Populate the option select with the variety's options
+                    for (const option of varietyOptions.options) {
+                        const optionOption = document.createElement("option");
+                        optionOption.value = option.code;
+                        optionOption.textContent = option.description;
+                        optionSelect.appendChild(optionOption);
+                    }
+                }
+            }
+        });
+    });
+</script>
 </body>
 </html>

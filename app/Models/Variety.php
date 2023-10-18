@@ -2,11 +2,13 @@
 
 namespace Burti\Models;
 
-class Variety
+use JsonSerializable;
+
+class Variety implements JsonSerializable
 {
-    private string $code;
-    private string $description;
-    private array $options;
+    protected string $code;
+    protected string $description;
+    protected array $options;
 
     public function __construct(
         string $code,
@@ -32,5 +34,14 @@ class Variety
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'code' => $this->getCode(),
+            'description' => $this->getDescription(),
+            'options' => $this->getOptions()
+        ];
     }
 }

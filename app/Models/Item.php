@@ -2,11 +2,13 @@
 
 namespace Burti\Models;
 
-class Item
+use JsonSerializable;
+
+class Item implements JsonSerializable
 {
-    private string $code;
-    private string $description;
-    private array $varieties;
+    protected string $code;
+    protected string $description;
+    protected array $varieties;
 
     public function __construct(
         string  $code,
@@ -32,5 +34,14 @@ class Item
     public function getVarieties(): array
     {
         return $this->varieties;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'code' => $this->getCode(),
+            'description' => $this->getDescription(),
+            'varieties' => $this->getVarieties()
+        ];
     }
 }

@@ -2,10 +2,12 @@
 
 namespace Burti\Models;
 
-class Option
+use JsonSerializable;
+
+class Option implements JsonSerializable
 {
-    private string $code;
-    private string $description;
+    protected string $code;
+    protected string $description;
 
     public function __construct(
         string $code,
@@ -24,5 +26,13 @@ class Option
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'code' => $this->getCode(),
+            'description' => $this->getDescription()
+        ];
     }
 }

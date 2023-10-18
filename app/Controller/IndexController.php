@@ -18,10 +18,11 @@ class IndexController
     public function index(): TwigView
     {
         $items = $this->productServices->handle();
-
+        $jsonItems = json_encode($items);
 
         return new TwigView('Index/index', [
-            'items' => $items
+            'items' => $items,
+            'jsonItems' => $jsonItems
         ]);
     }
 }
