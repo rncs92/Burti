@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-200 w-screen h-screen">
 <section class="relative mx-auto w-fit">
-    <nav class="flex justify-between bg-cyan-800 text-white w-screen">
+    <nav class="flex justify-between bg-teal-900 text-white w-screen">
         <div class="px-5 xl:px-12 py-2 flex w-full items-center">
             <div class="flex items-center space-x-36">
                 <a class="text-3xl font-bold font-heading" href="/">
@@ -21,46 +21,45 @@
 </section>
 <div class="flex justify-center mt-10">
     <div class="w-1/3">
-        <label for="items" class="block mb-1 text-md font-medium text-gray-900 dark:text-white">Select a product</label>
+        <label for="items" class="block mb-1 text-md font-medium text-gray-900 dark:text-white">Izvēlieties
+            produktu</label>
         <select id="items"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            <option value="" selected disabled>Choose a product</option>
+            <option value="" selected disabled>Izvēlieties produktu</option>
             {% for item in items %}
                 <option value="{{ item.code }}">{{ item.description }}</option>
             {% endfor %}
         </select>
         <div id="varieties-dropdowns"></div>
-        <label class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Generated Code:</label>
+        <label class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Ģenerētais kods</label>
         <p id="code-display" class="p-2 text-lg font-semibold"></p>
     </div>
 </div>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Iegūt info no izvēlētajiem produktiem
+        // Mainīgie izvēlētajiem produktiem un opcijām
         const productSelect = document.getElementById("items");
         const varietiesDropdowns = document.getElementById("varieties-dropdowns");
         const codeDisplay = document.getElementById("code-display");
 
-        // Koda mainīgais, kur tiek glabāts kods
+        // Koda mainīgais, koda sagalbāšanai
         let code = "";
 
-        // Piefiksē izmaiņas produkta izvēlē
+        // Listeners, lai uztvertu izvēlētā produkta izmaiņas
         productSelect.addEventListener("change", () => {
-            // Attīrīt kodu pie izmaiņām
-            codeDisplay.textContent = '';
+            // Attīrīt veco kodu pēc izvēlētā produkta maiņas
+            code = "";
 
-            // Iztīrīt varieties pie produkta izmaiņas
-            varietiesDropdowns.innerHTML = '';
-
-            // Piefiksēt izvēlētā produkta kodu
+            // Iegūt produkta kodu
             const selectedProductCode = String(productSelect.value);
-            code = selectedProductCode;
-
             const selectedProduct = {{ jsonItems | raw }}.
             find(product => product.code === selectedProductCode);
 
-            if (selectedProduct && selectedProduct.varieties.length > 0) {
+            if (selectedProduct) {
+                // Attīrīt iepriekšējā izvēlētā produkta varieties
+                varietiesDropdowns.innerHTML = '';
+
+                // Izveidot dropdowns katram varieties ar tā opcijām
                 selectedProduct.varieties.forEach(variety => {
                     const varietyDropdown = document.createElement("select");
                     varietyDropdown.classList.add(
@@ -74,13 +73,13 @@
                         "focus:border-blue-500",
                         "block",
                         "w-full",
-                        "p-2.5",
-                        "mt-2"
+                        "p-2.5"
                     );
 
-                    varietyDropdown.innerHTML = `<option value="${variety.code}" selected disabled>${variety.description}</option>`;
+                    varietyDropdown.innerHTML = `<option value="" selected disabled>${variety.description}</option>`;
+                    varietyDropdown.addEventListener("change", updateOptionSelect);
 
-                    // Izveidot varieties opcijas
+                    // Iveidotor varieties opcijas
                     variety.options.forEach(option => {
                         const optionOption = document.createElement("option");
                         optionOption.value = option.code;
@@ -88,22 +87,28 @@
                         varietyDropdown.appendChild(optionOption);
                     });
 
-                    // EventListener, lai izmainītu kodu atkarībā pēc izvēlētajām varieties opcijām
-                    varietyDropdown.addEventListener("change", () => {
-                        const selectedVarietyCode = varietyDropdown.value;
-                        if (selectedVarietyCode) {
-                            code += "." + selectedVarietyCode;
-                        }
-                        codeDisplay.textContent = code;
-                    });
-
                     varietiesDropdowns.appendChild(varietyDropdown);
                 });
-            } else {
-                // Ja produktam nav varieties, tad attēlot produkta kodu
-                codeDisplay.textContent = code;
             }
+
+            updateOptionSelect();
         });
+
+        function updateOptionSelect() {
+            // Iegūt varieties opcijas un kodus
+            const selectedOptions = Array.from(varietiesDropdowns.children).map(
+                (varietyDropdown) => varietyDropdown.value
+            );
+
+            // Atrast izvēlētā produkta kodu
+            const selectedProductCode = String(productSelect.value);
+
+            // Izveidot kodu savienojot produkta kodu ar opciju kodiem
+            code = selectedProductCode + "." + selectedOptions.join(".");
+
+            // Attēlot kodu no koda mainīgā
+            codeDisplay.textContent = `Code: ${code}`;
+        }
     });
 </script>
 </body>
