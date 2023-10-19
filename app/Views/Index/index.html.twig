@@ -30,6 +30,8 @@
             {% endfor %}
         </select>
         <div id="varieties-dropdowns"></div>
+        <label class="block mb-1 mt-4 text-md font-medium text-gray-900 dark:text-white">Generated Code:</label>
+        <p id="code-display" class="p-2 text-lg font-semibold"></p>
     </div>
 </div>
 
@@ -38,14 +40,23 @@
         // Get references to the select elements
         const productSelect = document.getElementById("items");
         const varietiesDropdowns = document.getElementById("varieties-dropdowns");
+        const codeDisplay = document.getElementById("code-display");
+
+        // Initialize the code variable
+        let code = "";
 
         // Listen for changes in the product select
         productSelect.addEventListener("change", () => {
+            // Clear the code display
+            codeDisplay.textContent = '';
+
             // Clear the existing variety dropdowns
             varietiesDropdowns.innerHTML = '';
 
             // Get the selected product code
             const selectedProductCode = String(productSelect.value);
+            code = selectedProductCode;
+
             const selectedProduct = {{ jsonItems | raw }}.find(product => product.code === selectedProductCode);
 
             if (selectedProduct && selectedProduct.varieties.length > 0) {
@@ -76,11 +87,25 @@
                         varietyDropdown.appendChild(optionOption);
                     });
 
+                    // Add a change listener to update the code
+                    varietyDropdown.addEventListener("change", () => {
+                        const selectedVarietyCode = varietyDropdown.value;
+                        if (selectedVarietyCode) {
+                            code += "." + selectedVarietyCode;
+                        }
+                        codeDisplay.textContent = code;
+                    });
+
                     varietiesDropdowns.appendChild(varietyDropdown);
                 });
+            } else {
+                // If there are no varieties, display the code for the selected product
+                codeDisplay.textContent = code;
             }
         });
     });
 </script>
+
+
 </body>
 </html>
