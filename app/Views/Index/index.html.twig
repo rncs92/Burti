@@ -37,27 +37,28 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Get references to the select elements
+        // Iegūt info no izvēlētajiem produktiem
         const productSelect = document.getElementById("items");
         const varietiesDropdowns = document.getElementById("varieties-dropdowns");
         const codeDisplay = document.getElementById("code-display");
 
-        // Initialize the code variable
+        // Koda mainīgais, kur tiek glabāts kods
         let code = "";
 
-        // Listen for changes in the product select
+        // Piefiksē izmaiņas produkta izvēlē
         productSelect.addEventListener("change", () => {
-            // Clear the code display
+            // Attīrīt kodu pie izmaiņām
             codeDisplay.textContent = '';
 
-            // Clear the existing variety dropdowns
+            // Iztīrīt varieties pie produkta izmaiņas
             varietiesDropdowns.innerHTML = '';
 
-            // Get the selected product code
+            // Piefiksēt izvēlētā produkta kodu
             const selectedProductCode = String(productSelect.value);
             code = selectedProductCode;
 
-            const selectedProduct = {{ jsonItems | raw }}.find(product => product.code === selectedProductCode);
+            const selectedProduct = {{ jsonItems | raw }}.
+            find(product => product.code === selectedProductCode);
 
             if (selectedProduct && selectedProduct.varieties.length > 0) {
                 selectedProduct.varieties.forEach(variety => {
@@ -79,7 +80,7 @@
 
                     varietyDropdown.innerHTML = `<option value="${variety.code}" selected disabled>${variety.description}</option>`;
 
-                    // Create options for the variety
+                    // Izveidot varieties opcijas
                     variety.options.forEach(option => {
                         const optionOption = document.createElement("option");
                         optionOption.value = option.code;
@@ -87,7 +88,7 @@
                         varietyDropdown.appendChild(optionOption);
                     });
 
-                    // Add a change listener to update the code
+                    // EventListener, lai izmainītu kodu atkarībā pēc izvēlētajām varieties opcijām
                     varietyDropdown.addEventListener("change", () => {
                         const selectedVarietyCode = varietyDropdown.value;
                         if (selectedVarietyCode) {
@@ -99,13 +100,11 @@
                     varietiesDropdowns.appendChild(varietyDropdown);
                 });
             } else {
-                // If there are no varieties, display the code for the selected product
+                // Ja produktam nav varieties, tad attēlot produkta kodu
                 codeDisplay.textContent = code;
             }
         });
     });
 </script>
-
-
 </body>
 </html>

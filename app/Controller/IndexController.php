@@ -7,7 +7,6 @@ use Burti\Services\Index\IndexProductServices;
 
 class IndexController
 {
-
     private IndexProductServices $productServices;
 
     public function __construct(IndexProductServices $productServices)
